@@ -9,7 +9,7 @@ import org.apache.jena.datatypes.xsd.XSDDatatype;
 import org.apache.jena.graph.NodeFactory;
 import org.apache.jena.sparql.core.Var;
 import org.apache.jena.sparql.engine.binding.Binding;
-import org.apache.jena.sparql.engine.binding.BindingHashMap;
+import org.apache.jena.sparql.engine.binding.BindingBuilder;
 import org.apache.jena.util.iterator.ClosableIterator;
 
 import com.opencsv.CSVReader;
@@ -58,7 +58,7 @@ public class CSVParser implements ClosableIterator<Binding> {
 	 * @param quote
 	 *            The quote character used to quote values (typically double or single quote), or <code>null</code> for default
 	 * @param escape
-	 *            The escape character for quotes and delimiters, or <code>null</code> for none 
+	 *            The escape character for quotes and delimiters, or <code>null</code> for none
 	 * @throws IOException if an I/O error occurs while reading from the input
 	 */
 	public CSVParser(Reader reader, boolean varsFromHeader, Character delimiter, Character quote, Character escape)
@@ -84,8 +84,8 @@ public class CSVParser implements ClosableIterator<Binding> {
 	}
 
 	private boolean isEmpty(String[] row) {
-		for (int i = 0; i < row.length; i++) {
-			if (!isUnboundValue(row[i]))
+		for (String s : row) {
+			if (!isUnboundValue(s))
 				return false;
 		}
 		return true;
@@ -100,16 +100,16 @@ public class CSVParser implements ClosableIterator<Binding> {
 	}
 
 	private Binding toBinding(String[] row) {
-		BindingHashMap result = new BindingHashMap();
+		BindingBuilder bindingBuilder = BindingBuilder.create();
 		for (int i = 0; i < row.length; i++) {
 			if (isUnboundValue(row[i]))
 				continue;
-			result.add(getVar(i), NodeFactory.createLiteral(sanitizeString(row[i])));
+			bindingBuilder.add(getVar(i), NodeFactory.createLiteral(sanitizeString(row[i])));
 		}
 		// Add current row number as ?ROWNUM
-		result.add(TarqlQuery.ROWNUM, NodeFactory.createLiteral(
+		bindingBuilder.add(TarqlQuery.ROWNUM, NodeFactory.createLiteral(
 				Integer.toString(rownum), XSDDatatype.XSDinteger));
-		return result;
+		return bindingBuilder.build();
 	}
 
 	/**
@@ -174,13 +174,13 @@ public class CSVParser implements ClosableIterator<Binding> {
 			throw new RuntimeException(e);
 		}
 	}
-	
+
 	public List<Var> getVars() {
 		List<Var> varsWithRowNum = new ArrayList<Var>(vars);
 		varsWithRowNum.add(TarqlQuery.ROWNUM);
 		return varsWithRowNum;
 	}
-	
+
 	private void init() throws IOException {
 		String[] row;
 		csv = new CSVReader(reader, delimiter, quote, escape);
