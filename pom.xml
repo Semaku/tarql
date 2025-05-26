@@ -26,6 +26,8 @@
   </scm>
 
   <properties>
+    <jena.version>4.9.0</jena.version>
+    <opencsv.version>4.6</opencsv.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
 
@@ -39,23 +41,17 @@
     <dependency>
       <groupId>org.apache.jena</groupId>
       <artifactId>jena-arq</artifactId>
-      <version>4.9.0</version>
+      <version>${jena.version}</version>
     </dependency>
     <dependency>
       <groupId>org.apache.jena</groupId>
       <artifactId>jena-cmds</artifactId>
-      <version>4.9.0</version>
+      <version>${jena.version}</version>
     </dependency>
-    <!-- We use a custom build of OpenCSV with Patch #54. To build:
-
-         git clone https://github.com/cygri/opencsv.git
-         cd opencsv
-         mvn install -Dgpg.skip -Denforcer.skip
-    -->
     <dependency>
       <groupId>com.opencsv</groupId>
       <artifactId>opencsv</artifactId>
-      <version>3.9-cygri</version>
+      <version>${opencsv.version}</version>
     </dependency>
     <dependency>
       <groupId>net.sourceforge.jchardet</groupId>
